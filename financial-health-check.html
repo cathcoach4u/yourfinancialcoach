@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Financial Coach — Financial Health Check</title>
+  <meta name="theme-color" content="#003366">
+  <link rel="stylesheet" href="css/style.css">
+  <style>body { opacity: 0; transition: opacity 0.2s; }</style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="index.html" class="header-back">← Dashboard</a>
+        <span class="header-title">Financial Health Check</span>
+      </div>
+      <button class="sign-out-btn" id="signOutBtn">Sign Out</button>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <div class="membership-card">
+      <div class="member-name" id="memberName">—</div>
+    </div>
+
+    <div style="text-align:center;padding:60px 20px;">
+      <div style="font-size:56px;margin-bottom:20px;">💰</div>
+      <h2 style="color:var(--primary);font-size:22px;margin-bottom:12px;">Financial Health Check</h2>
+      <p style="color:var(--text-muted);font-size:15px;max-width:400px;margin:0 auto 28px;">This tool is being built. Check back soon.</p>
+      <a href="index.html" class="btn btn-primary">← Back to Dashboard</a>
+    </div>
+
+    <footer class="site-footer">
+      Strengths-Based Coaching and Counselling<br>
+      <a href="http://www.coach4u.com.au">www.coach4u.com.au</a> |
+      <a href="mailto:cath@coach4u.com.au">cath@coach4u.com.au</a> |
+      0402 313 337
+    </footer>
+
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const SUPABASE_URL      = 'https://eekefsuaefgpqmjdyniy.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_pcXHwQVMpvEojb4K3afEMw_RMvgZM-Y';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (!user || userError) { window.location.href = 'auth/login.html'; throw new Error('No user'); }
+
+    const { data: profile } = await supabase
+      .from('users').select('membership_status, name').eq('id', user.id).single();
+
+    if (!profile || profile.membership_status !== 'active') {
+      window.location.href = 'auth/inactive.html'; throw new Error('Inactive');
+    }
+
+    document.body.style.opacity = '1';
+    document.getElementById('memberName').textContent =
+      profile.name || user.user_metadata?.name || user.email;
+
+    document.getElementById('signOutBtn').addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      window.location.href = 'auth/login.html';
+    });
+  </script>
+
+</body>
+</html>

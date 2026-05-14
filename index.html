@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Financial Coach</title>
+  <meta name="theme-color" content="#003366">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/style.css">
+  <style>body { opacity: 0; transition: opacity 0.2s; }</style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <span class="header-title">Your Financial Coach</span>
+      </div>
+      <button class="sign-out-btn" id="signOutBtn">Sign Out</button>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <div class="membership-card">
+      <div class="member-name" id="memberName">—</div>
+    </div>
+
+    <div class="app-section-header">
+      <span class="app-section-title">Your Tools</span>
+      <span class="app-section-count">5 available</span>
+    </div>
+
+    <div class="app-grid">
+
+      <div class="app-card">
+        <div class="app-card-icon">💰</div>
+        <div class="app-card-title">Financial Health Check</div>
+        <div class="app-card-desc">Assess your financial wellbeing across key pillars</div>
+        <a href="financial-health-check.html" class="btn btn-primary">Open</a>
+      </div>
+
+      <div class="app-card">
+        <div class="app-card-icon">🎯</div>
+        <div class="app-card-title">Goal Tracker</div>
+        <div class="app-card-desc">Set and track your financial goals</div>
+        <a href="goals.html" class="btn btn-primary">Open</a>
+      </div>
+
+      <div class="app-card">
+        <div class="app-card-icon">📊</div>
+        <div class="app-card-title">Budget Review</div>
+        <div class="app-card-desc">Reflect on your spending patterns and priorities</div>
+        <a href="budget-review.html" class="btn btn-primary">Open</a>
+      </div>
+
+      <div class="app-card">
+        <div class="app-card-icon">📚</div>
+        <div class="app-card-title">Resources</div>
+        <div class="app-card-desc">Financial coaching tools and materials</div>
+        <a href="resources.html" class="btn btn-primary">Open</a>
+      </div>
+
+      <div class="app-card">
+        <div class="app-card-icon">⚙️</div>
+        <div class="app-card-title">Account</div>
+        <div class="app-card-desc">Your profile and membership details</div>
+        <a href="account.html" class="btn btn-primary">Open</a>
+      </div>
+
+    </div>
+
+    <footer class="site-footer">
+      Strengths-Based Coaching and Counselling<br>
+      <a href="http://www.coach4u.com.au">www.coach4u.com.au</a> |
+      <a href="mailto:cath@coach4u.com.au">cath@coach4u.com.au</a> |
+      0402 313 337
+    </footer>
+
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const SUPABASE_URL      = 'https://eekefsuaefgpqmjdyniy.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_pcXHwQVMpvEojb4K3afEMw_RMvgZM-Y';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+    if (!user || userError) {
+      window.location.href = 'auth/login.html';
+      throw new Error('No user');
+    }
+
+    const { data: profile } = await supabase
+      .from('users')
+      .select('membership_status, name')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile || profile.membership_status !== 'active') {
+      window.location.href = 'auth/inactive.html';
+      throw new Error('Membership inactive');
+    }
+
+    document.body.style.opacity = '1';
+
+    document.getElementById('memberName').textContent =
+      profile.name || user.user_metadata?.name || user.email;
+
+    document.getElementById('signOutBtn').addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      window.location.href = 'auth/login.html';
+    });
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator)
+      navigator.serviceWorker.register('sw.js');
+  </script>
+
+</body>
+</html>
