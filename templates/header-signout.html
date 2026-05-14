@@ -1,0 +1,25 @@
+<!--
+  HEADER + SIGN OUT SNIPPET
+  --------------------------
+  Copy into every protected page. Sign Out is always top-right.
+  Update [Page Name] for each page.
+-->
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-left">
+      <a href="index.html" class="header-back">← Dashboard</a>
+      <span class="header-title">[Page Name]</span>
+    </div>
+    <button class="sign-out-btn" id="signOutBtn">Sign Out</button>
+  </div>
+</header>
+
+<!--
+  Inside your <script type="module">:
+
+  document.getElementById('signOutBtn').addEventListener('click', async () => {
+    await supabase.auth.signOut();
+    window.location.href = 'auth/login.html';
+  });
+-->

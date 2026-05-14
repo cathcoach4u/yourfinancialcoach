@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[Activity Name] | Your Financial Coach</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1B3664">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/activity.css">
+  <style>body { opacity: 0; transition: opacity 0.2s ease; }</style>
+</head>
+<body class="activity-page">
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="index.html" class="header-back">← Dashboard</a>
+        <span class="header-title">[Activity Name]</span>
+      </div>
+      <button class="sign-out-btn" id="signOutBtn">Sign Out</button>
+    </div>
+  </header>
+
+  <div class="act-container">
+
+    <header class="act-header">
+      <h1>[Activity Name]</h1>
+      <p>[One sentence describing what this activity helps the user do.]</p>
+    </header>
+
+    <div class="act-progress" id="progress">
+      <div class="act-progress-step active" data-step="1">
+        <span class="num">1</span><span>[Step 1]</span>
+      </div>
+      <div class="act-progress-divider"></div>
+      <div class="act-progress-step" data-step="2">
+        <span class="num">2</span><span>[Step 2]</span>
+      </div>
+      <div class="act-progress-divider"></div>
+      <div class="act-progress-step" data-step="3">
+        <span class="num">3</span><span>Reflect</span>
+      </div>
+    </div>
+
+    <div class="act-card" id="step1">
+      <div class="act-step-label">Step 1 of 3</div>
+      <h2 class="act-step-title">[Step 1 Question]</h2>
+      <p class="act-step-prompt">[Instruction for this step.]</p>
+
+      <div class="act-core-grid">
+        <div class="act-core-tile"><span class="act-emoji">💰</span><span>[Option]</span></div>
+      </div>
+
+      <div class="act-button-row">
+        <span></span>
+        <button class="act-btn act-btn-primary" id="next1" disabled>Continue</button>
+      </div>
+    </div>
+
+    <div class="act-card act-hidden" id="step2">
+      <div class="act-step-label">Step 2 of 3</div>
+      <h2 class="act-step-title">[Step 2 Question]</h2>
+      <p class="act-step-prompt">[Instruction.]</p>
+
+      <div class="act-sub-grid">
+        <div class="act-sub-tile">[Option]</div>
+      </div>
+
+      <div class="act-button-row">
+        <button class="act-btn act-btn-secondary" onclick="window.goToStep(1)">Back</button>
+        <button class="act-btn act-btn-primary" id="next2" disabled>Continue</button>
+      </div>
+    </div>
+
+    <div class="act-card act-hidden" id="step3">
+      <div class="act-step-label">Step 3 of 3</div>
+      <h2 class="act-step-title">Sit with it for a moment</h2>
+
+      <div class="act-summary-banner">
+        <div class="act-summary-label">Your selection</div>
+        <div class="act-summary-words" id="finalWords">—</div>
+      </div>
+
+      <div class="act-reflect-prompts">
+        <div>
+          <label>What does this bring up for you?</label>
+          <textarea placeholder="A thought, a feeling, a pattern…"></textarea>
+        </div>
+        <div>
+          <label>What would help right now?</label>
+          <textarea placeholder="A small action, a conversation, a pause…"></textarea>
+        </div>
+      </div>
+
+      <div class="act-button-row">
+        <button class="act-btn act-btn-secondary" onclick="window.goToStep(2)">Back</button>
+        <button class="act-btn act-btn-primary" onclick="window.startOver()">Start again</button>
+      </div>
+    </div>
+
+    <footer class="act-footer">
+      Strengths-Based Coaching and Counselling |
+      <a href="https://www.coach4u.com.au" target="_blank">coach4u.com.au</a>
+    </footer>
+
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const SUPABASE_URL      = 'https://eekefsuaefgpqmjdyniy.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_pcXHwQVMpvEojb4K3afEMw_RMvgZM-Y';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (!user || userError) { window.location.href = 'auth/login.html'; throw new Error('No user'); }
+
+    const { data: profile } = await supabase
+      .from('users').select('membership_status, name').eq('id', user.id).single();
+
+    if (!profile || profile.membership_status !== 'active') {
+      window.location.href = 'auth/inactive.html'; throw new Error('Inactive');
+    }
+
+    document.body.style.opacity = '1';
+
+    document.getElementById('signOutBtn').addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      window.location.href = 'auth/login.html';
+    });
+
+    function goToStep(n) {
+      for (let i = 1; i <= 3; i++)
+        document.getElementById('step' + i).classList.toggle('act-hidden', i !== n);
+      document.querySelectorAll('.act-progress-step').forEach(el => {
+        const s = parseInt(el.dataset.step);
+        el.classList.remove('active', 'done');
+        if (s < n) el.classList.add('done');
+        else if (s === n) el.classList.add('active');
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    window.goToStep = goToStep;
+    window.startOver = () => goToStep(1);
+  </script>
+
+</body>
+</html>

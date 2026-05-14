@@ -1,0 +1,62 @@
+/* ============================================
+   Coach4U Info Page Design System — css/info.css
+   Version: 2.3
+   Copied from coach4u-shared/templates/css/info.css
+   ============================================ */
+
+body.info-page { background: #f0f2f5; }
+
+.info-brand-bar {
+  background: var(--primary);
+  background-image: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+  background-size: 100% 5px;
+  background-repeat: no-repeat;
+  background-position: top;
+  padding: 18px 24px 16px;
+  text-align: center;
+}
+
+.info-back-link {
+  display: inline-block;
+  color: rgba(255,255,255,0.75);
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  text-decoration: none;
+  letter-spacing: 0.1px;
+}
+.info-back-link:hover { color: white; text-decoration: none; }
+
+.info-brand-name {
+  font-size: 22px;
+  font-weight: 800;
+  color: #ffffff;
+  font-family: var(--font-heading);
+  letter-spacing: -0.3px;
+}
+.info-brand-sub {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+  color: rgba(255,255,255,0.72);
+  margin-top: 5px;
+}
+
+.info-content { max-width: 560px; margin: 0 auto; padding: 28px 20px 60px; }
+
+.info-note {
+  font-size: 15px; color: #555; line-height: 1.65; margin-top: 16px;
+  padding: 14px 16px; background: rgba(13,148,136,0.05);
+  border-radius: var(--radius-sm); border-left: 3px solid var(--accent);
+}
+
+.info-footer { text-align: center; font-size: 14px; color: var(--text-muted); margin-top: 36px; position: sticky; top: 100vh; }
+.info-footer a { color: var(--text-muted); }
+.info-footer a:hover { color: var(--accent); }
+
+@media (max-width: 600px) {
+  .info-brand-bar { padding: 14px 20px 12px; }
+  .info-brand-name { font-size: 20px; }
+  .info-content { padding: 20px 16px 48px; }
+}

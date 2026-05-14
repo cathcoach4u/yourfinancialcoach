@@ -1,0 +1,11 @@
+<!--
+  FLASH PREVENTION SNIPPET
+  ------------------------
+  Add to <head>:
+    <style>body { opacity: 0; transition: opacity 0.2s ease; }</style>
+
+  Add inside your <script type="module">, after membership check passes:
+    document.body.style.opacity = '1';
+
+  Use on every protected page. Do NOT use on auth pages.
+-->
