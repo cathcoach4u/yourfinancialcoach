@@ -142,6 +142,21 @@
   white-space: nowrap;
 }
 
+/* Detail link inside each pill */
+.pill-detail-link {
+  display: block;
+  margin-top: 12px;
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-decoration: none;
+  text-align: right;
+}
+.pill-detail-link:hover {
+  color: var(--accent-dark);
+  text-decoration: underline;
+}
+
 /* ---- Pill comparison table ---- */
 .pill-table {
   width: 100%;
@@ -198,13 +213,6 @@
   letter-spacing: 0.8px;
   color: var(--primary);
 }
-.business-row--total {
-  margin-bottom: 32px;
-  padding-bottom: 24px;
-  border-bottom: 2px dashed var(--border);
-}
-.business-row--total .business-row__head { border-bottom-color: var(--primary); }
-.business-row--total .business-row__head h2 { color: var(--accent); font-size: 14px; }
 
 /* ---- KPI grid ---- */
 .kpi-grid {
@@ -406,7 +414,7 @@
 /* ---- Print ---- */
 @media print {
   .site-header { display: none !important; }
-  .ias-hero, .ias-callout, #kpiDetails, .ias-assumptions { display: none !important; }
+  .ias-hero, .ias-callout, .ias-assumptions { display: none !important; }
   .total-row { position: static !important; }
   body[class*="printing-"] .summary-grid { display: block !important; }
   body[class*="printing-"] .summary-pill { display: none !important; }
@@ -421,7 +429,7 @@
     padding: 40px !important;
     page-break-inside: avoid;
   }
-  .print-btn { display: none !important; }
+  .print-btn, .pill-detail-link { display: none !important; }
   .pill-table { font-size: 1rem; }
   .summary-head h3 { font-size: 1.6rem !important; }
   .pill-table tbody tr.net-row th,
