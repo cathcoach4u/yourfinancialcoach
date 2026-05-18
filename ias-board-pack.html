@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IAS Board Financial Dashboard | Your Financial Coach</title>
+  <meta name="theme-color" content="#003366">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/ias-dashboard.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <span class="header-title">Your Financial Coach</span>
+        <span class="biz-pill">IAS Board Pack</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="ias-page">
+
+    <div class="ias-hero">
+      <div>
+        <p class="ias-eyebrow">Leadership Team / Board Pack</p>
+        <h1>Executive financial performance dashboard</h1>
+      </div>
+      <div class="period-pill">
+        <span>Reporting period</span>
+        <strong>FY to 30 June</strong>
+        <span>10 months actual + 2 months estimate</span>
+      </div>
+    </div>
+
+    <div class="ias-callout">
+      <h2>About these figures</h2>
+      <p><strong>Viability view:</strong> These figures are designed to assess the viability of each business area on a standalone basis. They do not reflect how splits are currently maintained in the accounting system.</p>
+      <p><strong>Accrual basis:</strong> IAS reports management figures on an accrual basis throughout the year. Revenue is recognised when clients are invoiced (not necessarily received) and expenses are recognised when invoices are raised (not necessarily paid). Year-end tax accounting is reported on a cash basis.</p>
+    </div>
+
+    <!-- Summary KPI pills — rendered by JS -->
+    <section id="kpiGrid"></section>
+
+    <!-- Detailed business rows — rendered by JS -->
+    <section id="kpiDetails"></section>
+
+    <div class="ias-assumptions">
+      <h2>Assumptions used today</h2>
+      <ul>
+        <li><strong>Reporting period:</strong> figures up to 30 April are year-to-date actuals (10 months); May and June are forward estimates; Potential FY total = YTD + estimate.</li>
+        <li><strong>Operations base:</strong> total operations $408,945 (rent, compliance, Leah &amp; Dimple salaries; excludes Jo's pre-March salary). Reduced by the $96,795 Outsourcing carve-out to $312,150, then split 50/50 to General and Life ($156,075 each).</li>
+        <li><strong>Jo's salary split:</strong> annual salary $220,000, split 60% FP/Life &middot; 30% General &middot; 10% Outsourcing. April YTD figures: Life $110,000 &middot; General $55,000 &middot; Outsourcing $18,333.</li>
+        <li><strong>Outsourcing cost stack:</strong> YTD $96,795 = Xero $49,795 + Leah 25% $25,000 + Jo 10% $22,000. May/June supplied Xero $16,356/month + 2-month pro-rata of Leah ($5,000) and Jo ($4,400) = $42,112 total.</li>
+        <li><strong>General YTD costs $622,100:</strong> Xero $411,025 + 50% of operations (post-carve-out) $156,075 + Jo's salary 30% share $55,000.</li>
+        <li><strong>Life YTD costs $584,290:</strong> Xero $483,215 + 50% of operations (post-carve-out) $156,075 &minus; $55,000.</li>
+        <li><strong>General &amp; Life May + June costs</strong> are pro-rated from the 10-month YTD run-rate (YTD &divide; 10 &times; 2); expenses assumed fairly consistent month to month.</li>
+        <li><strong>Prior FY cost assumption:</strong> last year's total costs $1,701,459 are split 50/50 between General and Life ($850,730 each), since no per-business prior cost breakdown was supplied.</li>
+        <li><strong>Prior FY revenues:</strong> IAS Total $1,703,016 (full year actual); General $982,642; Life $719,671. Outsourcing prior FY not supplied (new business).</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <footer class="site-footer">
+    Strengths-Based Coaching and Counselling<br>
+    <a href="http://www.coach4u.com.au">www.coach4u.com.au</a> |
+    <a href="mailto:cath@coach4u.com.au">cath@coach4u.com.au</a> |
+    0402 313 337
+  </footer>
+
+  <script src="ias-financial-model.js"></script>
+  <script src="ias-dashboard.js"></script>
+
+</body>
+</html>
