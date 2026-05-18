@@ -1,6 +1,7 @@
 /* IAS Board Pack — dashboard renderer
    Depends on ias-financial-model.js (must load first).
-   Renders summary KPI pills and full per-business detail rows. */
+   Renders summary KPI pills (board pack), per-business detail pages,
+   and the IAS total page. Page is determined by data-ias-page on <body>. */
 
 function moneyRound(value) {
   return new Intl.NumberFormat('en-AU', {
@@ -144,9 +145,9 @@ function buildBusinessRow(businessKey) {
 
   const cardList = [];
   if (prior) cardList.push(buildCard(businessKey, 'Prior FY (last year)', 'Actual revenue', prior.revenue, prior.costs));
-  cardList.push(buildCard(businessKey, 'YTD to 30 April',   '10 months actual',  f.ytdRevenue,    f.ytdCosts,    f.ytdCostBreakdown));
+  cardList.push(buildCard(businessKey, 'YTD to 30 April',   '10 months actual',  f.ytdRevenue,     f.ytdCosts,     f.ytdCostBreakdown));
   cardList.push(buildCard(businessKey, 'May + June',         'Forward estimate',  f.mayJuneRevenue, f.mayJuneCosts, f.mayJuneCostBreakdown));
-  cardList.push(buildCard(businessKey, 'Potential FY total', 'YTD + estimate',    fyRevenue,       fyCosts,       null, growth));
+  cardList.push(buildCard(businessKey, 'Potential FY total', 'YTD + estimate',    fyRevenue,        fyCosts,        null, growth));
 
   const gridClass = cardList.length === 4 ? 'kpi-grid--four' : 'kpi-grid--three';
   const assumptionItems = ASSUMPTIONS[businessKey].map(t => `<li>${t}</li>`).join('');
@@ -171,26 +172,25 @@ function buildTotalRow() {
   const keys = ['general', 'life', 'outsourcing'];
   const figs = keys.map(getBusinessFigures);
   const totals = figs.reduce((acc, f) => ({
-    ytdRevenue:    acc.ytdRevenue    + (f.ytdRevenue    || 0),
-    ytdCosts:      acc.ytdCosts      + (f.ytdCosts      || 0),
-    mayJuneRevenue:acc.mayJuneRevenue+ (f.mayJuneRevenue|| 0),
-    mayJuneCosts:  acc.mayJuneCosts  + (f.mayJuneCosts  || 0)
+    ytdRevenue:    acc.ytdRevenue     + (f.ytdRevenue     || 0),
+    ytdCosts:      acc.ytdCosts       + (f.ytdCosts       || 0),
+    mayJuneRevenue:acc.mayJuneRevenue + (f.mayJuneRevenue || 0),
+    mayJuneCosts:  acc.mayJuneCosts   + (f.mayJuneCosts   || 0)
   }), { ytdRevenue: 0, ytdCosts: 0, mayJuneRevenue: 0, mayJuneCosts: 0 });
 
   const fyRevenue = totals.ytdRevenue + totals.mayJuneRevenue;
   const fyCosts   = totals.ytdCosts   + totals.mayJuneCosts;
-
-  const bd  = (i, p) => `General ${moneyRound(figs[0][p])} · Life ${moneyRound(figs[1][p])} · Outsourcing ${moneyRound(figs[2][p])}`;
-  const bdf = (i)    => `General ${moneyRound(figs[0].ytdCosts + figs[0].mayJuneCosts)} · Life ${moneyRound(figs[1].ytdCosts + figs[1].mayJuneCosts)} · Outsourcing ${moneyRound(figs[2].ytdCosts + figs[2].mayJuneCosts)}`;
+  const bd  = p => `General ${moneyRound(figs[0][p])} · Life ${moneyRound(figs[1][p])} · Outsourcing ${moneyRound(figs[2][p])}`;
+  const bdf = () => `General ${moneyRound(figs[0].ytdCosts + figs[0].mayJuneCosts)} · Life ${moneyRound(figs[1].ytdCosts + figs[1].mayJuneCosts)} · Outsourcing ${moneyRound(figs[2].ytdCosts + figs[2].mayJuneCosts)}`;
 
   const cards = [
-    buildCard('total', 'Prior FY (last year)',  'Actual full year',                PRIOR_FY.revenue, PRIOR_FY.costs),
-    buildCard('total', 'YTD to 30 April',       'All businesses · 10 months actual', totals.ytdRevenue,    totals.ytdCosts,    bd(0, 'ytdCosts')),
-    buildCard('total', 'May + June',             'All businesses · forward estimate', totals.mayJuneRevenue, totals.mayJuneCosts, bd(0, 'mayJuneCosts')),
-    buildCard('total', 'Potential FY total',     'All businesses · YTD + estimate',   fyRevenue, fyCosts, bdf(), growthVsPrior(fyRevenue, PRIOR_FY.revenue))
+    buildCard('total', 'Prior FY (last year)',  'Actual full year',                  PRIOR_FY.revenue,     PRIOR_FY.costs),
+    buildCard('total', 'YTD to 30 April',       'All businesses · 10 months actual',  totals.ytdRevenue,    totals.ytdCosts,    bd('ytdCosts')),
+    buildCard('total', 'May + June',             'All businesses · forward estimate',  totals.mayJuneRevenue,totals.mayJuneCosts,bd('mayJuneCosts')),
+    buildCard('total', 'Potential FY total',     'All businesses · YTD + estimate',    fyRevenue, fyCosts,  bdf(), growthVsPrior(fyRevenue, PRIOR_FY.revenue))
   ].join('');
 
-  return `<section class="business-row business-row--total">
+  return `<section class="business-row">
     <header class="business-row__head"><h2>IAS Total — whole business</h2></header>
     <div class="kpi-grid kpi-grid--four">${cards}</div>
   </section>`;
@@ -206,8 +206,7 @@ function rowChange(prior, projected, isCost) {
   const diff = projected - prior;
   const pct  = (diff / prior) * 100;
   const text = `${diff >= 0 ? '+' : ''}${moneyRound(diff)} (${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%)`;
-  const isGood = isCost ? pct <= 0 : pct >= 0;
-  return { text, cls: isGood ? 'pct-up' : 'pct-down' };
+  return { text, cls: (isCost ? pct <= 0 : pct >= 0) ? 'pct-up' : 'pct-down' };
 }
 
 function netCls(v) {
@@ -215,7 +214,7 @@ function netCls(v) {
   return v >= 0 ? 'pct-up' : 'pct-down';
 }
 
-function buildSummaryPill(label, key, priorRevenue, projRevenue, priorCosts, projCosts) {
+function buildSummaryPill(label, key, priorRevenue, projRevenue, priorCosts, projCosts, detailUrl) {
   const priorNet = (priorRevenue != null && priorCosts != null) ? priorRevenue - priorCosts : null;
   const projNet  = (projRevenue  != null && projCosts  != null) ? projRevenue  - projCosts  : null;
   const fmt      = v => v != null ? moneyRound(v) : '—';
@@ -224,6 +223,9 @@ function buildSummaryPill(label, key, priorRevenue, projRevenue, priorCosts, pro
   const netChange  = (priorNet != null && projNet != null)
     ? formatDollarChange(projNet - priorNet)
     : { text: 'n/a', cls: '' };
+  const detailHtml = detailUrl
+    ? `<a href="${detailUrl}" class="pill-detail-link">View detail →</a>`
+    : '';
   return `<article class="summary-pill ${key}" data-area="${key}">
     <header class="summary-head">
       <h3>${label}</h3>
@@ -237,6 +239,7 @@ function buildSummaryPill(label, key, priorRevenue, projRevenue, priorCosts, pro
         <tr class="net-row"><th>Net Profit</th><td class="${netCls(priorNet)}">${fmt(priorNet)}</td><td class="${netCls(projNet)}">${fmt(projNet)}</td><td class="${netChange.cls}">${netChange.text}</td></tr>
       </tbody>
     </table>
+    ${detailHtml}
   </article>`;
 }
 
@@ -255,11 +258,11 @@ function renderKpis() {
   const totalFYCost = figs.reduce((acc, f) => acc + (f.ytdCosts      || 0) + (f.mayJuneCosts   || 0), 0);
   const priorRev  = b => PRIOR_FY_BUSINESS[b] && PRIOR_FY_BUSINESS[b].revenue;
   const priorCost = b => PRIOR_FY_BUSINESS[b] && PRIOR_FY_BUSINESS[b].costs;
-  const totalPill = buildSummaryPill('IAS Total', 'total', PRIOR_FY.revenue, totalFYRev, PRIOR_FY.costs, totalFYCost);
+  const totalPill = buildSummaryPill('IAS Total', 'total', PRIOR_FY.revenue, totalFYRev, PRIOR_FY.costs, totalFYCost, 'ias-total.html');
   const businessPills = [
-    buildSummaryPill('General Insurance', 'general',     priorRev('general'),     figs[0].ytdRevenue + figs[0].mayJuneRevenue, priorCost('general'),     figs[0].ytdCosts + figs[0].mayJuneCosts),
-    buildSummaryPill('Life Insurance',    'life',        priorRev('life'),        figs[1].ytdRevenue + figs[1].mayJuneRevenue, priorCost('life'),        figs[1].ytdCosts + figs[1].mayJuneCosts),
-    buildSummaryPill('Outsourcing',       'outsourcing', null,                    figs[2].ytdRevenue + figs[2].mayJuneRevenue, null,                    figs[2].ytdCosts + figs[2].mayJuneCosts)
+    buildSummaryPill('General Insurance', 'general',     priorRev('general'),     figs[0].ytdRevenue + figs[0].mayJuneRevenue, priorCost('general'),     figs[0].ytdCosts + figs[0].mayJuneCosts, 'ias-general.html'),
+    buildSummaryPill('Life Insurance',    'life',        priorRev('life'),        figs[1].ytdRevenue + figs[1].mayJuneRevenue, priorCost('life'),        figs[1].ytdCosts + figs[1].mayJuneCosts, 'ias-life.html'),
+    buildSummaryPill('Outsourcing',       'outsourcing', null,                    figs[2].ytdRevenue + figs[2].mayJuneRevenue, null,                    figs[2].ytdCosts + figs[2].mayJuneCosts, 'ias-outsourcing.html')
   ];
   wrap.innerHTML = `
     <div class="total-row">${totalPill}</div>
@@ -267,13 +270,19 @@ function renderKpis() {
   `;
 }
 
-function renderAllBusinessDetails() {
-  const wrap = document.getElementById('kpiDetails');
+function renderBusinessPage() {
+  const wrap = document.getElementById('businessPageContent');
   if (!wrap) return;
-  wrap.innerHTML = buildTotalRow() + ['general', 'life', 'outsourcing'].map(buildBusinessRow).join('');
+  const key = document.body.dataset.iasPage;
+  if (!key) return;
+  if (key === 'total') {
+    wrap.innerHTML = buildTotalRow();
+  } else if (BUSINESS_META[key]) {
+    wrap.innerHTML = buildBusinessRow(key);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   renderKpis();
-  renderAllBusinessDetails();
+  renderBusinessPage();
 });
